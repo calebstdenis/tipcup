@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.stream.Stream;
+
 public class home extends AppCompatActivity {
 
     @Override
@@ -17,6 +19,10 @@ public class home extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        int[] requiredTextFields = {R.id.bill_field, R.id.tip_field, R.id.people_field};
+        for(int requiredTextField : requiredTextFields) {
+            setRequiredFieldHandler(requiredTextField);
+        }
     }
 
     @Override
@@ -39,5 +45,9 @@ public class home extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setRequiredFieldHandler(int id) {
+        
     }
 }
