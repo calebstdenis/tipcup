@@ -1,5 +1,7 @@
 package uottawa.caleb.tipcup;
 
+import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,13 +21,20 @@ import android.widget.TextView;
 import java.util.stream.Stream;
 
 public class home extends AppCompatActivity {
+    private int[] requiredTextFields = {R.id.bill_field, R.id.tip_field, R.id.people_field};
+
+    boolean billfieldEmpty, tipfieldEmpty, peopleFieldEmpty, peopleFieldZero;
+
+    class ValidationState {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        int[] requiredTextFields = {R.id.bill_field, R.id.tip_field, R.id.people_field};
         for(int requiredTextField : requiredTextFields) {
             setRequiredFieldHandler(requiredTextField);
         }
@@ -36,6 +45,18 @@ public class home extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
+    }
+
+    public void onCalculate(View view) {
+        String errmsg = this.validateAll();
+        if(errmsg == null) {
+            Intent intent = new Intent(this, SummaryActivity.class);
+            startActivity(intent);
+        }
+        else {
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.top_layout), errmsg, Snackbar.LENGTH_LONG);
+            snackbar.show();
+        }
     }
 
     @Override
@@ -53,19 +74,84 @@ public class home extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void suggestTip(View view) {
+        DialogFragment dialog = new TipSuggestionDialog();
+        dialog.show(getFragmentManager(), "tag");
+    }
+
+
+    private void validate(int id) {
+        TextInputLayout field = (TextInputLayout) findViewById(id);
+        boolean fieldIsEmpty = TextUtils.isEmpty(field.getEditText().getText());
+        switch(id) {
+            case R.id.bill_field:
+                final TextView helperText = (TextView) findViewById(R.id.bill_helper_text);
+                if(fieldIsEmpty) {
+                    helperText.setVisibility(View.INVISIBLE);
+                    field.setError("Error: This is required");
+                    billfieldEmpty = true;
+                }
+                else if(field.getError() != null) {
+                    field.setError(null);
+                    billfieldEmpty = false;
+                    helperText.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            helperText.setVisibility(View.VISIBLE);
+                        }
+                    }, 300);
+                }
+                break;
+            case R.id.tip_field:
+                if(fieldIsEmpty) {
+                    tipfieldEmpty = true;
+                    field.setError("Error: This is required");
+                }
+                else {
+                    tipfieldEmpty = false;
+                    field.setError(null);
+                }
+                break;
+            case R.id.people_field:
+                peopleFieldEmpty = fieldIsEmpty;
+                if(!fieldIsEmpty) {
+                    if(Integer.parseInt(field.getEditText().getText().toString()) <= 0) {
+                        peopleFieldZero = true;
+                        field.setError("Error: This must be greater than zero");
+                    }
+                    else {
+                        peopleFieldZero = false;
+                        field.setError(null);
+                    }
+                }
+                else {
+                    field.setError("Error: This is required");
+                }
+                break;
+        }
+    }
+
+    private String validateAll() {
+        String errMessage = null;
+        for(int id: requiredTextFields) {
+            validate(id);
+        }
+        if(billfieldEmpty || tipfieldEmpty || peopleFieldEmpty) {
+            errMessage = "Some fields still need to be filled out";
+        }
+        else if(peopleFieldZero) {
+            errMessage = "The number of people needs to be greater than zero";
+        }
+        return errMessage;
+    }
+
     private void setRequiredFieldHandler(final int id) {
         final TextInputLayout field = (TextInputLayout)findViewById(id);
         field.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus) {
-                    if(TextUtils.isEmpty(field.getEditText().getText())) {
-                        if(id == R.id.bill_field) {
-                            TextView helperText = (TextView) findViewById(R.id.bill_helper_text);
-                            helperText.setVisibility(View.INVISIBLE);
-                        }
-                        field.setError("Error: This field is required");
-                    }
+                    validate(id);
                 }
             }
         });
@@ -83,20 +169,7 @@ public class home extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-
-
-                if(!TextUtils.isEmpty(s)) {
-                    field.setError(null);
-                }
-                if(id == R.id.bill_field) {
-                    final TextView helperText = (TextView) findViewById(R.id.bill_helper_text);
-                    helperText.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            helperText.setVisibility(View.VISIBLE);
-                        }
-                    }, 500);
-                }
+                validate(id);
             }
         });
     }
