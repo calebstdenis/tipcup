@@ -3,16 +3,22 @@ package uottawa.caleb.tipcup;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
+import android.support.v4.text.TextUtilsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.widget.TextView;
 
 import java.util.stream.Stream;
 
 public class home extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +53,51 @@ public class home extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setRequiredFieldHandler(int id) {
-        
+    private void setRequiredFieldHandler(final int id) {
+        final TextInputLayout field = (TextInputLayout)findViewById(id);
+        field.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus) {
+                    if(TextUtils.isEmpty(field.getEditText().getText())) {
+                        if(id == R.id.bill_field) {
+                            TextView helperText = (TextView) findViewById(R.id.bill_helper_text);
+                            helperText.setVisibility(View.INVISIBLE);
+                        }
+                        field.setError("Error: This field is required");
+                    }
+                }
+            }
+        });
+
+        field.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+
+                if(!TextUtils.isEmpty(s)) {
+                    field.setError(null);
+                }
+                if(id == R.id.bill_field) {
+                    final TextView helperText = (TextView) findViewById(R.id.bill_helper_text);
+                    helperText.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            helperText.setVisibility(View.VISIBLE);
+                        }
+                    }, 500);
+                }
+            }
+        });
     }
 }
