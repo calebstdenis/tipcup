@@ -19,15 +19,21 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.stream.Stream;
-
 public class home extends AppCompatActivity {
     private int[] requiredTextFields = {R.id.bill_field, R.id.tip_field, R.id.people_field};
 
     boolean billfieldEmpty, tipfieldEmpty, peopleFieldEmpty, peopleFieldZero;
 
-    class ValidationState {
+    private double getTip() {
+        return Double.parseDouble(((TextInputLayout)findViewById(R.id.tip_field)).getEditText().getText().toString());
+    }
 
+    private double getBill() {
+        return Double.parseDouble(((TextInputLayout)findViewById(R.id.bill_field)).getEditText().getText().toString());
+    }
+
+    private int getPeople() {
+        return Integer.parseInt(((TextInputLayout)findViewById(R.id.people_field)).getEditText().getText().toString());
     }
 
     @Override
@@ -52,6 +58,9 @@ public class home extends AppCompatActivity {
         String errmsg = this.validateAll();
         if(errmsg == null) {
             Intent intent = new Intent(this, SummaryActivity.class);
+            intent.putExtra("people", getPeople())
+                    .putExtra("bill", getBill())
+                    .putExtra("tip", getTip());
             startActivity(intent);
         }
         else {
