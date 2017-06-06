@@ -28,7 +28,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".home" />
         </activity>
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".SettingsActivity" android:parentActivityName=".home">
+            <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".home" />
+        </activity>
     </application>
 
 </manifest>

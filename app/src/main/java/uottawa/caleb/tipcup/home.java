@@ -2,7 +2,10 @@ package uottawa.caleb.tipcup;
 
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -17,24 +20,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.prefs.Preferences;
 
 public class home extends AppCompatActivity {
     private int[] requiredTextFields = {R.id.bill_field, R.id.tip_field, R.id.people_field};
 
     boolean billfieldEmpty, tipfieldEmpty, peopleFieldEmpty, peopleFieldZero;
 
-    private double getTip() {
-        return Double.parseDouble(((TextInputLayout)findViewById(R.id.tip_field)).getEditText().getText().toString());
-    }
-
-    private double getBill() {
-        return Double.parseDouble(((TextInputLayout)findViewById(R.id.bill_field)).getEditText().getText().toString());
-    }
-
     private int getPeople() {
         return Integer.parseInt(((TextInputLayout)findViewById(R.id.people_field)).getEditText().getText().toString());
     }
+
+    private double getTip() {
+        return Double.parseDouble(((TextInputLayout)findViewById(R.id.people_field)).getEditText().getText().toString());
+    }
+
+    private double getBill() {
+        return Double.parseDouble(((TextInputLayout)findViewById(R.id.people_field)).getEditText().getText().toString());
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +52,34 @@ public class home extends AppCompatActivity {
         for(int requiredTextField : requiredTextFields) {
             setRequiredFieldHandler(requiredTextField);
         }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        EditText text = (EditText)findViewById(R.id.tip_edit_text);
+        if(TextUtils.isEmpty(text.getText())) {
+            String res = prefs.getString("pref_tip", "");
+            if(!res.equals("")) {
+                text.setText(res);
+            }
+        }
+
+
+//        prefs.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+//            @Override
+//            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//                if(key == "pref_currency") {
+//                    ((EditText)findViewById(R.id.bill_edit_text)).setHint("Bill amount ( " + sharedPreferences.getString(key, "$") + ")");
+//                }
+//                if(key == "pref_tip") {
+//                    EditText text = (EditText)findViewById(R.id.tip_edit_text);
+//                    if(TextUtils.isEmpty(text.getText())) {
+//                        String res = sharedPreferences.getString("pref_tip", "");
+//                        if(!res.equals("")) {
+//                            text.setText(res);
+//                        }
+//                    }
+//                }
+//            }
+//        });
+
     }
 
     @Override
@@ -58,14 +93,19 @@ public class home extends AppCompatActivity {
         String errmsg = this.validateAll();
         if(errmsg == null) {
             Intent intent = new Intent(this, SummaryActivity.class);
-            intent.putExtra("people", getPeople())
-                    .putExtra("bill", getBill())
-                    .putExtra("tip", getTip());
             startActivity(intent);
         }
         else {
             Snackbar snackbar = Snackbar.make(findViewById(R.id.top_layout), errmsg, Snackbar.LENGTH_LONG);
             snackbar.show();
+        }
+    }
+
+    public void onTipSuggestion(Integer tip) {
+        EditText tipField = (EditText)findViewById(R.id.tip_edit_text);
+        if(tip != null) {
+            tipField.setText(tip.toString());
+            findViewById(R.id.editText10).requestFocus();
         }
     }
 
