@@ -35,11 +35,11 @@ public class home extends AppCompatActivity {
     }
 
     private double getTip() {
-        return Double.parseDouble(((TextInputLayout)findViewById(R.id.people_field)).getEditText().getText().toString());
+        return Double.parseDouble(((TextInputLayout)findViewById(R.id.tip_field)).getEditText().getText().toString());
     }
 
     private double getBill() {
-        return Double.parseDouble(((TextInputLayout)findViewById(R.id.people_field)).getEditText().getText().toString());
+        return Double.parseDouble(((TextInputLayout)findViewById(R.id.bill_field)).getEditText().getText().toString());
     }
 
 
@@ -93,6 +93,9 @@ public class home extends AppCompatActivity {
         String errmsg = this.validateAll();
         if(errmsg == null) {
             Intent intent = new Intent(this, SummaryActivity.class);
+            intent.putExtra("people", getPeople())
+                    .putExtra("bill", getBill())
+                    .putExtra("tip", getTip());
             startActivity(intent);
         }
         else {
