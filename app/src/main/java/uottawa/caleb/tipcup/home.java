@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.stream.Stream;
@@ -68,7 +69,8 @@ public class home extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent in = new Intent(this, SettingsActivity.class);
+            startActivity(in);
         }
 
         return super.onOptionsItemSelected(item);
